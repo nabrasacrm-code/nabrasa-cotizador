@@ -21,10 +21,10 @@
         <h1>Presupuestos, aprobaciones y entregas</h1>
       </div>
     </div>
-    <div class="top-actions">
+    <button class="nav-toggle" id="btnNavToggle" type="button" aria-expanded="false" aria-controls="topActions">☰</button>
+    <div class="top-actions" id="topActions">
       <a class="btn ghost link-btn" href="index.html">Nuevo presupuesto</a>
       <button class="theme-icon" id="btnTheme" type="button" aria-label="Cambiar tema" title="Cambiar tema">☀️</button>
-      <button class="btn ghost" id="btnConfig">Configurar</button>
     </div>
   </header>
 
@@ -36,8 +36,7 @@
           <h2>Historial y seguimiento</h2>
         </div>
         <div class="actions-row compact">
-          <button class="btn secondary" id="btnSync">Traer de Google Sheets</button>
-          <button class="btn secondary" id="btnExportarJson">Exportar JSON</button>
+          <button class="btn secondary" id="btnSync">Actualizar datos</button>
         </div>
       </div>
 
@@ -90,18 +89,5 @@
     </aside>
   </main>
 
-  <dialog id="configDialog" class="dialog">
-    <form method="dialog">
-      <h2>Configuración</h2>
-      <p>La URL de Apps Script permite guardar y consultar registros en Google Sheets.</p>
-      <label>URL Apps Script / Google Sheet
-        <input id="cfgAppsScript" placeholder="URL del Web App de Apps Script" />
-      </label>
-      <div class="actions-row">
-        <button class="btn primary" id="btnGuardarConfig" value="cancel">Guardar</button>
-        <button class="btn secondary" value="cancel">Cerrar</button>
-      </div>
-    </form>
-  </dialog>
 </body>
 </html>

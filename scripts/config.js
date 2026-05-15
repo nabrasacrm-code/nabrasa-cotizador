@@ -6,7 +6,7 @@ window.NABRASA_CONFIG = {
   },
   dolarDefault: 40.0801603,
   dolarApiUrl: "https://uy.dolarapi.com/v1/cotizaciones/usd",
-  appsScriptUrl: "",
+  appsScriptUrl: "https://script.google.com/macros/s/AKfycbxygykRln1-1R002oFFGve6HLuyJt1bPYOvII6QvAfmYP4166FYKEFLcPpGLF5bm65E/exec",
   materialesParrilla: {
     marco: [
       { id: "marco_inox_20x20_12", nombre: "Caño acero inox. 20x20mm / Pared 1,2mm", costoUsdSinIva: 28.36 },

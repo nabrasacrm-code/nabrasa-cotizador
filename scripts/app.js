@@ -11,7 +11,7 @@ function nowIso() { return new Date().toISOString(); }
 
 function getHistorialLocal() { return JSON.parse(localStorage.getItem("nabrasa_historial") || "[]"); }
 function setHistorialLocal(data) { localStorage.setItem("nabrasa_historial", JSON.stringify(data)); }
-function getAppsScriptUrl() { return localStorage.getItem("nabrasa_apps_script") || window.NABRASA_CONFIG.appsScriptUrl || ""; }
+function getAppsScriptUrl() { return window.NABRASA_CONFIG.appsScriptUrl || ""; }
 
 function setDollarPillStatus(texto) {
   const pill = $("dolarTexto");
@@ -267,7 +267,7 @@ async function guardarPresupuesto(opciones = {}) {
 
   const msg = remoto && remoto.ok
     ? "Presupuesto guardado en historial local y enviado a Google Sheets."
-    : "Presupuesto guardado en historial local. Para guardar en Google Sheets, configurá la URL de Apps Script.";
+    : "Presupuesto guardado en historial local. No se pudo enviar a Google Sheets.";
   if (mostrarAlerta) alert(msg);
   return registro;
 }
@@ -292,7 +292,6 @@ function enviarWhatsapp(numero = numeroActual()) {
 
 function guardarConfig() {
   NabrasaCalc.setDolarManual($("cfgDolar").value || window.NABRASA_CONFIG.dolarDefault);
-  localStorage.setItem("nabrasa_apps_script", $("cfgAppsScript").value || "");
   setDollarPillStatus("Dólar modificado manualmente para el día de hoy. Mañana volverá a actualizarse online.");
   actualizarPreview();
   render();
@@ -341,8 +340,14 @@ window.addEventListener("DOMContentLoaded", async () => {
   $("btnGuardarLocal").addEventListener("click", guardarPresupuesto);
   $("btnWhatsapp").addEventListener("click", enviarWhatsappYGuardar);
   $("btnTheme").addEventListener("click", alternarTema);
-  $("btnConfig").addEventListener("click", () => { $("cfgDolar").value = NabrasaCalc.getDolar(); $("cfgAppsScript").value = getAppsScriptUrl(); $("configDialog").showModal(); });
+  $("btnConfig").addEventListener("click", () => { $("cfgDolar").value = NabrasaCalc.getDolar(); $("configDialog").showModal(); });
   $("btnGuardarConfig").addEventListener("click", guardarConfig);
+  const navToggle = $("btnNavToggle");
+  const topActions = $("topActions");
+  if (navToggle && topActions) navToggle.addEventListener("click", () => {
+    const open = topActions.classList.toggle("is-open");
+    navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  });
   $("btnLimpiarProducto").addEventListener("click", () => { $("productoNotas").value = ""; actualizarPreview(); });
   actualizarCampos();
   render();

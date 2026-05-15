@@ -21,7 +21,8 @@
         <h1>Presupuestos rápidos para parrillas y quemadores</h1>
       </div>
     </div>
-    <div class="top-actions">
+    <button class="nav-toggle" id="btnNavToggle" type="button" aria-expanded="false" aria-controls="topActions">☰</button>
+    <div class="top-actions" id="topActions">
       <span class="dollar-pill">USD: <strong id="dolarTexto">40,08</strong></span>
       <button class="theme-icon" id="btnTheme" type="button" aria-label="Cambiar tema" title="Cambiar tema">☀️</button>
       <button class="btn ghost" id="btnConfig">Configurar</button>
@@ -210,9 +211,6 @@
       <p>El dólar se actualiza online una vez por día. Si lo modificás manualmente, ese valor se mantiene solo durante el día actual.</p>
       <label>Dólar del día
         <input id="cfgDolar" type="number" step="0.0001" />
-      </label>
-      <label>URL Apps Script / Google Sheet
-        <input id="cfgAppsScript" placeholder="URL del Web App de Apps Script" />
       </label>
       <div class="actions-row">
         <button class="btn primary" id="btnGuardarConfig" value="cancel">Guardar</button>

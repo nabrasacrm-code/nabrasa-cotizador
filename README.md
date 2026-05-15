@@ -29,3 +29,13 @@ El cotizador consulta automáticamente la cotización USD/UYU una vez por día d
 Si se modifica manualmente desde **Configurar**, el valor queda fijo solo para la fecha actual. Al día siguiente, el sistema vuelve a consultar el valor online por defecto.
 
 Si la API no responde, el sistema usa el último dólar guardado en el navegador o el valor default de `config.js`.
+
+
+## Cambios v15
+
+- URL de Apps Script fija en `scripts/config.js`.
+- Se quitó la edición de Apps Script desde el front.
+- Configuración visible solo para modificar el dólar del día.
+- Seguimiento carga datos desde Google Sheets al abrir y permite actualizar con el botón **Actualizar datos**.
+- Se retiró la exportación JSON de la interfaz.
+- Menú superior responsive con botón hamburguesa en móvil.

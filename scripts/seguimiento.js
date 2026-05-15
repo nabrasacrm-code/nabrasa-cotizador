@@ -26,7 +26,7 @@ function todayUY() { return new Date().toLocaleDateString("es-UY"); }
 function nowIso() { return new Date().toISOString(); }
 function getHistorialLocal() { return JSON.parse(localStorage.getItem("nabrasa_historial") || "[]"); }
 function setHistorialLocal(data) { localStorage.setItem("nabrasa_historial", JSON.stringify(data)); }
-function getAppsScriptUrl() { return localStorage.getItem("nabrasa_apps_script") || window.NABRASA_CONFIG.appsScriptUrl || ""; }
+function getAppsScriptUrl() { return window.NABRASA_CONFIG.appsScriptUrl || ""; }
 
 function aplicarTema(theme) {
   const tema = theme === "light" ? "light" : "dark";
@@ -330,9 +330,9 @@ function fetchJsonp(url) {
   });
 }
 
-async function syncDesdeGoogleSheet() {
+async function syncDesdeGoogleSheet(mostrarAlerta = true) {
   const url = getAppsScriptUrl();
-  if (!url) return alert("Primero configurá la URL de Apps Script.");
+  if (!url) return alert("No hay URL de Apps Script configurada en el sistema.");
   try {
     const data = await fetchJsonp(`${url}?action=listPresupuestos`);
     if (!data.ok || !Array.isArray(data.records)) throw new Error("Respuesta inválida");
@@ -340,10 +340,10 @@ async function syncDesdeGoogleSheet() {
     seleccionadoId = null;
     renderTabla();
     renderDetalle();
-    alert("Registros cargados desde Google Sheets.");
+    if (mostrarAlerta) alert("Datos actualizados desde Google Sheets.");
   } catch (e) {
     console.warn(e);
-    alert("No se pudo traer la información de Google Sheets. Revisá la URL, permisos y despliegue del Apps Script.");
+    if (mostrarAlerta) alert("No se pudo traer la información de Google Sheets. Revisá permisos y despliegue del Apps Script.");
   }
 }
 
@@ -356,19 +356,20 @@ function exportarJson() {
   a.click();
 }
 
-function guardarConfig() {
-  localStorage.setItem("nabrasa_apps_script", $("cfgAppsScript").value || "");
-}
 
 window.addEventListener("DOMContentLoaded", () => {
   aplicarTema(localStorage.getItem("nabrasa_theme") || "dark");
   $("btnTheme").addEventListener("click", alternarTema);
-  $("btnConfig").addEventListener("click", () => { $("cfgAppsScript").value = getAppsScriptUrl(); $("configDialog").showModal(); });
-  $("btnGuardarConfig").addEventListener("click", guardarConfig);
-  $("btnExportarJson").addEventListener("click", exportarJson);
-  $("btnSync").addEventListener("click", syncDesdeGoogleSheet);
+  const navToggle = $("btnNavToggle");
+  const topActions = $("topActions");
+  if (navToggle && topActions) navToggle.addEventListener("click", () => {
+    const open = topActions.classList.toggle("is-open");
+    navToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  $("btnSync").addEventListener("click", () => syncDesdeGoogleSheet(true));
   $("filtroTexto").addEventListener("input", renderTabla);
   $("filtroEstado").addEventListener("change", renderTabla);
   renderTabla();
   renderDetalle();
+  syncDesdeGoogleSheet(false);
 });
