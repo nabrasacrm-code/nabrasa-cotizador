@@ -39,3 +39,8 @@ Si la API no responde, el sistema usa el último dólar guardado en el navegador
 - Seguimiento carga datos desde Google Sheets al abrir y permite actualizar con el botón **Actualizar datos**.
 - Se retiró la exportación JSON de la interfaz.
 - Menú superior responsive con botón hamburguesa en móvil.
+
+
+## v16
+- Se quitó WhatsApp del módulo de presupuesto actual.
+- En Seguimiento, WhatsApp ahora intenta compartir el PDF del presupuesto usando Web Share API. Si el navegador no permite adjuntar archivos automáticamente, descarga el PDF y abre WhatsApp con el texto para adjuntarlo manualmente.

@@ -338,7 +338,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   $("btnVaciar").addEventListener("click", () => { invalidarGuardadoActual(); items = []; render(); });
   $("btnPdf").addEventListener("click", descargarPdfYGuardar);
   $("btnGuardarLocal").addEventListener("click", guardarPresupuesto);
-  $("btnWhatsapp").addEventListener("click", enviarWhatsappYGuardar);
   $("btnTheme").addEventListener("click", alternarTema);
   $("btnConfig").addEventListener("click", () => { $("cfgDolar").value = NabrasaCalc.getDolar(); $("configDialog").showModal(); });
   $("btnGuardarConfig").addEventListener("click", guardarConfig);

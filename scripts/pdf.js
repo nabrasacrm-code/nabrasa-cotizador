@@ -97,11 +97,11 @@ function crearPdfDesdeRegistro(registro) {
   return wrap;
 }
 
-async function descargarPresupuestoRegistroPDF(registro) {
-  if (!registro) return;
+async function generarPdfRegistroBlob(registro) {
+  if (!registro) return null;
   if (!window.jspdf || !window.html2canvas) {
     alert("No se pudo cargar el generador de PDF. Revisá la conexión a internet o las librerías del proyecto.");
-    return;
+    return null;
   }
 
   const temporal = crearPdfDesdeRegistro(registro);
@@ -117,8 +117,22 @@ async function descargarPresupuestoRegistroPDF(registro) {
     const imgWidth = pageWidth - 12;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     pdf.addImage(imgData, "PNG", 6, 6, imgWidth, imgHeight);
-    pdf.save(`${registro.numero || "presupuesto-nabrasa"}.pdf`);
+    return pdf.output("blob");
   } finally {
     temporal.remove();
   }
+}
+
+async function descargarPresupuestoRegistroPDF(registro) {
+  const blob = await generarPdfRegistroBlob(registro);
+  if (!blob) return;
+  const filename = `${registro.numero || "presupuesto-nabrasa"}.pdf`;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

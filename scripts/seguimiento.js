@@ -76,11 +76,44 @@ function textoWhatsappRegistro(r) {
   ].filter(v => v !== null).join("\n");
 }
 
-function enviarWhatsappRegistro(id) {
+async function enviarWhatsappRegistro(id) {
   const registro = getHistorialLocal().find(r => r.id === id);
   if (!registro) return alert("No encontré ese presupuesto en el historial local.");
+
+  const texto = textoWhatsappRegistro(registro);
+  const filename = `${registro.numero || "presupuesto-nabrasa"}.pdf`;
+
+  try {
+    const blob = await generarPdfRegistroBlob(registro);
+    if (blob) {
+      const file = new File([blob], filename, { type: "application/pdf" });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+        await navigator.share({
+          title: `Presupuesto ${registro.numero || "Nabrasa"}`,
+          text: texto,
+          files: [file]
+        });
+        return;
+      }
+
+      // Fallback: los navegadores de escritorio no permiten adjuntar archivos automáticamente a WhatsApp.
+      // Descargamos el PDF y abrimos WhatsApp con el texto para que el usuario lo adjunte manualmente.
+      const urlBlob = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = urlBlob;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(urlBlob), 1000);
+    }
+  } catch (e) {
+    console.warn("No se pudo generar/compartir el PDF", e);
+  }
+
   const phone = telefonoWhatsapp(registro.telefono);
-  const text = encodeURIComponent(textoWhatsappRegistro(registro));
+  const text = encodeURIComponent(`${texto}\n\nAdjuntamos el PDF del presupuesto.`);
   const url = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
   window.open(url, "_blank");
 }
@@ -125,7 +158,7 @@ function renderTabla() {
       <td data-label="Acción">
         <div class="row-actions">
           <button class="btn secondary mini" data-id="${r.id}">Editar</button>
-          <button class="btn secondary mini icon-action" data-wpp-id="${r.id}" title="Enviar por WhatsApp">WhatsApp</button>
+          <button class="btn secondary mini icon-action" data-wpp-id="${r.id}" title="Enviar PDF por WhatsApp">Enviar PDF</button>
         </div>
       </td>`;
     tbody.appendChild(tr);
@@ -151,7 +184,7 @@ function renderTabla() {
           <div><span>Fecha clave</span><strong>${fechaClave(r) || "-"}</strong></div>
           <div class="mobile-record-actions">
             <button class="btn secondary mobile-edit" data-id="${r.id}">Editar seguimiento</button>
-            <button class="btn secondary mobile-wpp" data-wpp-id="${r.id}">WhatsApp</button>
+            <button class="btn secondary mobile-wpp" data-wpp-id="${r.id}">Enviar PDF</button>
           </div>
         </div>
       `;
@@ -245,11 +278,13 @@ function renderDetalle() {
     <div class="actions-row wrap detail-actions">
       <button class="btn primary" id="btnGuardarDetalle">Guardar cambios</button>
       <button class="btn secondary" id="btnDescargarPdfDetalle">Descargar PDF</button>
+      <button class="btn secondary" id="btnEnviarPdfWhatsappDetalle">Enviar PDF por WhatsApp</button>
       <button class="btn danger ghost" id="btnEliminarRegistro">Eliminar local</button>
     </div>
   `;
   $("btnGuardarDetalle").addEventListener("click", guardarDetalle);
   $("btnDescargarPdfDetalle").addEventListener("click", () => descargarPdfRegistro(registro.id));
+  $("btnEnviarPdfWhatsappDetalle").addEventListener("click", () => enviarWhatsappRegistro(registro.id));
   $("btnEliminarRegistro").addEventListener("click", eliminarRegistro);
 }
 
