@@ -1650,3 +1650,30 @@ body[data-theme="light"] .nav-toggle {
     width: 100%;
   }
 }
+
+.btn:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn.is-loading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 999px;
+  display: inline-block;
+  animation: nabrasa-spin .75s linear infinite;
+}
+
+@keyframes nabrasa-spin {
+  to { transform: rotate(360deg); }
+}

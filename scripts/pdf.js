@@ -1,4 +1,16 @@
-async function descargarPresupuestoPDF(numero) {
+function nombreArchivoPresupuesto(numero, cliente) {
+  const clean = (value) => String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+  const n = clean(numero) || "presupuesto";
+  const c = clean(cliente) || "sin-cliente";
+  return `${n}-${c}.pdf`;
+}
+
+async function descargarPresupuestoPDF(numero, cliente) {
   const area = document.getElementById("pdfArea");
   const canvas = await html2canvas(area, { scale: 2, backgroundColor: "#ffffff" });
   const imgData = canvas.toDataURL("image/png");
@@ -8,7 +20,7 @@ async function descargarPresupuestoPDF(numero) {
   const imgWidth = pageWidth - 12;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
   pdf.addImage(imgData, "PNG", 6, 6, imgWidth, imgHeight);
-  pdf.save(`${numero || "presupuesto-nabrasa"}.pdf`);
+  pdf.save(nombreArchivoPresupuesto(numero || "presupuesto-nabrasa", cliente || "sin-cliente"));
 }
 
 
@@ -126,7 +138,7 @@ async function generarPdfRegistroBlob(registro) {
 async function descargarPresupuestoRegistroPDF(registro) {
   const blob = await generarPdfRegistroBlob(registro);
   if (!blob) return;
-  const filename = `${registro.numero || "presupuesto-nabrasa"}.pdf`;
+  const filename = nombreArchivoPresupuesto(registro.numero || "presupuesto-nabrasa", registro.cliente || "sin-cliente");
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

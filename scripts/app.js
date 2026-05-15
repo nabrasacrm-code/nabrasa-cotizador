@@ -2,6 +2,8 @@ const $ = (id) => document.getElementById(id);
 let items = [];
 let presupuestoN = Number(localStorage.getItem("nabrasa_seq")) || 1;
 let presupuestoGuardadoActual = null;
+let guardandoPresupuesto = false;
+let descargandoPdf = false;
 
 function fmtUsd(n) { return `USD ${NabrasaCalc.round2(n).toLocaleString("es-UY")}`; }
 function fmtUyu(n) { return `$ ${Math.round(n).toLocaleString("es-UY")}`; }
@@ -228,6 +230,11 @@ async function enviarRegistroAGoogleSheet(registro) {
 async function guardarPresupuesto(opciones = {}) {
   const { limpiarDespues = true, mostrarAlerta = true } = opciones;
 
+  if (guardandoPresupuesto) {
+    if (mostrarAlerta) alert("El presupuesto ya se está guardando. Esperá unos segundos.");
+    return null;
+  }
+
   if (!items.length) {
     if (mostrarAlerta) alert("Agregá al menos un producto.");
     return null;
@@ -243,6 +250,8 @@ async function guardarPresupuesto(opciones = {}) {
     if (mostrarAlerta) alert("Este presupuesto ya estaba guardado.");
     return registroExistente;
   }
+
+  guardandoPresupuesto = true;
 
   const registro = crearRegistroPresupuesto();
   const historial = getHistorialLocal();
@@ -269,26 +278,39 @@ async function guardarPresupuesto(opciones = {}) {
     ? "Presupuesto guardado en historial local y enviado a Google Sheets."
     : "Presupuesto guardado en historial local. No se pudo enviar a Google Sheets.";
   if (mostrarAlerta) alert(msg);
+  guardandoPresupuesto = false;
   return registro;
 }
 
+function setBotonProcesando(btn, procesando, textoProcesando = "Generando...") {
+  if (!btn) return;
+  if (procesando) {
+    btn.dataset.originalText = btn.textContent;
+    btn.disabled = true;
+    btn.classList.add("is-loading");
+    btn.innerHTML = `<span class="spinner"></span>${textoProcesando}`;
+  } else {
+    btn.disabled = false;
+    btn.classList.remove("is-loading");
+    btn.textContent = btn.dataset.originalText || "Descargar PDF";
+  }
+}
+
 async function descargarPdfYGuardar() {
-  const registro = await guardarPresupuesto({ limpiarDespues: false, mostrarAlerta: false });
-  if (!registro) return;
-  await descargarPresupuestoPDF(registro.numero);
+  if (descargandoPdf) return;
+  descargandoPdf = true;
+  const btn = $("btnPdf");
+  setBotonProcesando(btn, true, "Generando PDF...");
+  try {
+    const registro = await guardarPresupuesto({ limpiarDespues: false, mostrarAlerta: false });
+    if (!registro) return;
+    await descargarPresupuestoPDF(registro.numero, registro.cliente);
+  } finally {
+    descargandoPdf = false;
+    setBotonProcesando(btn, false);
+  }
 }
 
-async function enviarWhatsappYGuardar() {
-  const registro = await guardarPresupuesto({ limpiarDespues: false, mostrarAlerta: false });
-  if (!registro) return;
-  enviarWhatsapp(registro.numero);
-}
-
-function enviarWhatsapp(numero = numeroActual()) {
-  const totalUsd = items.reduce((a, b) => a + b.totalUsd, 0);
-  const msg = `Presupuesto ${numero} - Nabrasa%0ACliente: ${$("clienteNombre").value || "Sin cliente"}%0ATotal: ${fmtUsd(totalUsd)} / ${fmtUyu(totalUsd * NabrasaCalc.getDolar())}`;
-  window.open(`https://wa.me/?text=${msg}`, "_blank");
-}
 
 function guardarConfig() {
   NabrasaCalc.setDolarManual($("cfgDolar").value || window.NABRASA_CONFIG.dolarDefault);
