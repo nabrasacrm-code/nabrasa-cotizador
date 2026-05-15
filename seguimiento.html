@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nabrasa | Seguimiento</title>
+  <link rel="stylesheet" href="styles/styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <script src="scripts/config.js" defer></script>
+  <script src="scripts/calculadora.js" defer></script>
+  <script src="scripts/pdf.js" defer></script>
+  <script src="scripts/seguimiento.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-text">NABRASA</div>
+      <div>
+        <p class="eyebrow">Seguimiento comercial</p>
+        <h1>Presupuestos, aprobaciones y entregas</h1>
+      </div>
+    </div>
+    <div class="top-actions">
+      <a class="btn ghost link-btn" href="index.html">Nuevo presupuesto</a>
+      <button class="theme-icon" id="btnTheme" type="button" aria-label="Cambiar tema" title="Cambiar tema">☀️</button>
+      <button class="btn ghost" id="btnConfig">Configurar</button>
+    </div>
+  </header>
+
+  <main class="layout follow-layout">
+    <section class="panel follow-panel wide-panel">
+      <div class="section-head horizontal">
+        <div>
+          <p class="eyebrow">Panel de control</p>
+          <h2>Historial y seguimiento</h2>
+        </div>
+        <div class="actions-row compact">
+          <button class="btn secondary" id="btnSync">Traer de Google Sheets</button>
+          <button class="btn secondary" id="btnExportarJson">Exportar JSON</button>
+        </div>
+      </div>
+
+      <div class="filters-grid">
+        <label>Buscar
+          <input id="filtroTexto" placeholder="Cliente, teléfono, ciudad o número" />
+        </label>
+        <label>Estado
+          <select id="filtroEstado">
+            <option value="">Todos</option>
+            <option>Presupuestado</option>
+            <option>A confirmar</option>
+            <option>Aprobado</option>
+            <option>Ingresado a taller</option>
+            <option>En producción</option>
+            <option>Terminado</option>
+            <option>Entregado</option>
+            <option>Rechazado</option>
+            <option>Cancelado</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="table-wrap follow-table-wrap">
+        <table class="history-table crm-table">
+          <thead>
+            <tr>
+              <th>Nº</th>
+              <th>Cliente</th>
+              <th>Contacto</th>
+              <th>Ciudad</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Fecha clave</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="historialTabla"></tbody>
+        </table>
+      </div>
+      <div id="historialMobile" class="mobile-history-list"></div>
+    </section>
+
+    <aside class="panel detail-panel" id="detallePanel">
+      <div class="section-head">
+        <p class="eyebrow">Detalle</p>
+        <h2 id="detalleTitulo">Seleccioná un presupuesto</h2>
+      </div>
+      <div id="detalleContenido" class="detail-empty">Elegí una fila para editar datos, cambiar estado o revisar productos.</div>
+    </aside>
+  </main>
+
+  <dialog id="configDialog" class="dialog">
+    <form method="dialog">
+      <h2>Configuración</h2>
+      <p>La URL de Apps Script permite guardar y consultar registros en Google Sheets.</p>
+      <label>URL Apps Script / Google Sheet
+        <input id="cfgAppsScript" placeholder="URL del Web App de Apps Script" />
+      </label>
+      <div class="actions-row">
+        <button class="btn primary" id="btnGuardarConfig" value="cancel">Guardar</button>
+        <button class="btn secondary" value="cancel">Cerrar</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>

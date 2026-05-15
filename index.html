@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nabrasa | Cotizador</title>
+  <link rel="stylesheet" href="styles/styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <script src="scripts/config.js" defer></script>
+  <script src="scripts/calculadora.js" defer></script>
+  <script src="scripts/pdf.js" defer></script>
+  <script src="scripts/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-text">NABRASA</div>
+      <div>
+        <p class="eyebrow">Cotizador comercial</p>
+        <h1>Presupuestos rápidos para parrillas y quemadores</h1>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span class="dollar-pill">USD: <strong id="dolarTexto">40,08</strong></span>
+      <button class="theme-icon" id="btnTheme" type="button" aria-label="Cambiar tema" title="Cambiar tema">☀️</button>
+      <button class="btn ghost" id="btnConfig">Configurar</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel form-panel">
+      <div class="section-head">
+        <p class="eyebrow">Paso 1</p>
+        <h2>Datos del cliente</h2>
+      </div>
+      <div class="grid two">
+        <label>Nombre cliente
+          <input id="clienteNombre" placeholder="Ej: Juan Pérez" />
+        </label>
+        <label>Contacto
+          <input id="clienteTelefono" placeholder="Ej: 099 123 456" />
+        </label>
+        <label>Ciudad
+          <input id="clienteCiudad" placeholder="Ej: Montevideo" />
+        </label>
+        <label>Dirección
+          <input id="clienteDireccion" placeholder="Opcional" />
+        </label>
+      </div>
+
+      <div class="section-head spaced">
+        <p class="eyebrow">Paso 2</p>
+        <h2>Agregar producto</h2>
+      </div>
+
+      <div class="grid two">
+        <label>Producto
+          <select id="productoTipo">
+            <option value="parrillaSimple">Parrilla simple</option>
+            <option value="parrillaAchuras">Parrilla + achuras</option>
+            <option value="quemadorInox">Quemador inoxidable</option>
+            <option value="quemadorHierro">Quemador hierro</option>
+            <option value="manual">Ítem manual</option>
+          </select>
+        </label>
+        <label>Cantidad
+          <input id="cantidad" type="number" min="1" step="1" value="1" />
+        </label>
+      </div>
+
+      <div id="camposCalculados" class="grid two">
+        <label>Frente (cm)
+          <input id="frente" type="number" min="1" step="1" value="80" />
+        </label>
+        <label>Profundidad (cm)
+          <input id="profundidad" type="number" min="1" step="1" value="60" />
+        </label>
+        <label class="campo-parrilla">Patas (cm)
+          <input id="patas" type="number" min="0" step="1" value="15" />
+        </label>
+        <label class="campo-parrilla">Separación (mm)
+          <select id="separacion">
+            <option value="15">15 mm</option>
+            <option value="20">20 mm</option>
+          </select>
+        </label>
+        <label class="campo-parrilla wide">Marco
+          <select id="materialMarco"></select>
+        </label>
+        <label class="campo-parrilla wide">Emparrillado
+          <select id="materialEmparrillado"></select>
+        </label>
+        <label class="campo-quemador hidden">Altura (cm)
+          <input id="altura" type="number" min="0" step="1" value="30" />
+        </label>
+        <label class="campo-quemador hidden">Altura patas (cm)
+          <input id="alturaPatas" type="number" min="0" step="1" value="20" />
+        </label>
+        <label class="campo-quemador hidden">Nº de largueros
+          <input id="largueros" type="number" min="0" step="1" value="7" />
+        </label>
+      </div>
+
+      <div id="camposManual" class="grid two hidden">
+        <label class="wide">Ítem adicional
+          <select id="manualDescripcion"></select>
+        </label>
+        <label>Precio USD
+          <input id="manualUsd" type="number" min="0" step="0.01" value="0" />
+        </label>
+        <label>Cargar precio manual
+          <select id="manualPrecioModo">
+            <option value="auto">Usar precio sugerido</option>
+            <option value="manual">Editar precio manualmente</option>
+          </select>
+        </label>
+      </div>
+
+      <label>Observaciones del producto
+        <textarea id="productoNotas" rows="3" placeholder="Ej: modular, sin instalación, color, aclaraciones..."></textarea>
+      </label>
+
+      <div class="result-card">
+        <span>Subtotal estimado</span>
+        <strong id="previewTotal">USD 0</strong>
+        <small id="previewPesos">$ 0</small>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn primary" id="btnAgregar">Agregar al presupuesto</button>
+        <button class="btn secondary" id="btnLimpiarProducto">Limpiar producto</button>
+      </div>
+    </section>
+
+    <section class="panel quote-panel">
+      <div class="section-head horizontal">
+        <div>
+          <p class="eyebrow">Paso 3</p>
+          <h2>Presupuesto actual</h2>
+        </div>
+        <button class="btn danger ghost" id="btnVaciar">Vaciar</button>
+      </div>
+
+      <div id="presupuestoPreview" class="quote-preview">
+        <div class="pdf-sheet" id="pdfArea">
+          <div class="pdf-header">
+            <div class="pdf-logo">NABRASA</div>
+            <div class="pdf-number">
+              <span>Presupuesto Nº</span>
+              <strong id="presupuestoNumero">NB-0001</strong>
+            </div>
+          </div>
+          <div class="pdf-strip">Estimado cliente: todos los precios son IVA incluido.</div>
+          <div class="pdf-contact">092 532 584 · nabrasauy@gmail.com</div>
+
+          <div class="pdf-client-grid">
+            <span>Fecha de solicitud:</span><strong id="pdfFecha">--/--/----</strong>
+            <span>Nombre cliente:</span><strong id="pdfCliente">Sin cliente</strong>
+            <span>Contacto cliente:</span><strong id="pdfTelefono">Sin contacto</strong>
+            <span>Ciudad:</span><strong id="pdfCiudad">Sin ciudad</strong>
+          </div>
+
+          <table class="quote-table">
+            <thead>
+              <tr>
+                <th>Descripción</th>
+                <th>Medidas</th>
+                <th>Cant.</th>
+                <th>Sub total</th>
+                <th>Total</th>
+                <th class="screen-only"></th>
+              </tr>
+            </thead>
+            <tbody id="itemsTabla">
+              <tr class="empty-row"><td colspan="6">Todavía no agregaste productos.</td></tr>
+            </tbody>
+          </table>
+
+          <div class="pdf-footer-grid">
+            <div class="payment-box">Podés pagar con tarjeta de crédito sin recargo todos los productos.</div>
+            <div class="totals-box">
+              <div><span>Total USD</span><strong id="totalUsd">USD 0</strong></div>
+              <div><span>Total $</span><strong id="totalUyu">$ 0</strong></div>
+            </div>
+          </div>
+          <p class="legal">Costos de instalación no incluida — En $: Montevideo 3000 · Canelones 3800 · Maldonado 4200</p>
+        </div>
+      </div>
+
+      <div class="actions-row wrap">
+        <button class="btn primary" id="btnPdf">Descargar PDF</button>
+        <button class="btn secondary" id="btnGuardarLocal">Guardar presupuesto</button>
+        <button class="btn secondary" id="btnWhatsapp">Enviar por WhatsApp</button>
+      </div>
+
+      <div class="module-link-card">
+        <div>
+          <span>Seguimiento comercial</span>
+          <strong>Ver historial, estados y entregas</strong>
+        </div>
+        <a class="btn ghost link-btn" href="seguimiento.html">Abrir seguimiento</a>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="configDialog" class="dialog">
+    <form method="dialog">
+      <h2>Configuración rápida</h2>
+      <p>El dólar se actualiza online una vez por día. Si lo modificás manualmente, ese valor se mantiene solo durante el día actual.</p>
+      <label>Dólar del día
+        <input id="cfgDolar" type="number" step="0.0001" />
+      </label>
+      <label>URL Apps Script / Google Sheet
+        <input id="cfgAppsScript" placeholder="URL del Web App de Apps Script" />
+      </label>
+      <div class="actions-row">
+        <button class="btn primary" id="btnGuardarConfig" value="cancel">Guardar</button>
+        <button class="btn secondary" value="cancel">Cerrar</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>
